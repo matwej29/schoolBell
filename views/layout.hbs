@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p id="time"></p>
+    <form action="/save" method="post">
+    <table>
+        <thead>
+            <td>Setting</td>
+            <td>Value</td>
+        </thead>
+        <tr>
+            <td>Enabled</td>
+            <td>
+                <select name="enable">
+                    <option value="1">On</option>
+                    <option value="0" selected>Off</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Звонок</td>
+            <td>
+                <select name="bell">
+                    <option value=""></option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>FirstLesson</td>
+            <td style="display:flex; flex-direction: row; align-items: center;">
+                {{> input StartH }}{{> input StartM }} - {{> input EndH }}{{> input EndM }}
+            </td>
+        </tr>
+        <tr>
+            <td>Brake duration</td>
+            <td>
+                {{> input BrakeDuration }}
+            </td>
+        </tr>
+    </table>
+    <button onclick="Save()" type="submit">Save</button>
+    </form>
+</body>
+<script>
+    const time = setInterval(function () {
+        const date = new Date();
+        document.getElementById("time").innerHTML = (date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds());
+    }, 1000);
+</script>
+<script src="static/front.js"></script>
+
+</html>
