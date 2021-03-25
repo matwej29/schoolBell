@@ -19,10 +19,18 @@
         <tr>
             <td>Enabled</td>
             <td>
+                {{#if this.enabled}}
                 <select name="enable">
                     <option value="1" selected>On</option>
                     <option value="0">Off</option>
                 </select>
+                {{else}}
+                <select name="enable">
+                    <option value="1">On</option>
+                    <option value="0" selected>Off</option>
+                </select>
+                {{/if}}
+                
             </td>
         </tr>
         <tr>

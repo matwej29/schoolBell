@@ -5,6 +5,7 @@ class Controller {
     this.founded = false;
   }
   check() {
+    if (settingController.Read().enabled == 0) return;
     let lessons = settingController.Read().lessons;
     let now = new Date();
     now = [now.getHours(), now.getMinutes()].join(" ");
@@ -20,11 +21,11 @@ class Controller {
           console.log("Звонок с урока");
         }
         this.founded = true;
-        console.log("finded", this.founded);
+        console.log(this.founded);
         setTimeout(() => {
           this.founded = false;
           console.log(this.founded);
-        }, 60000);
+        }, 61000);
       }
     });
   }

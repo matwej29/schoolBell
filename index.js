@@ -15,8 +15,6 @@ app.get("/", pages.home);
 
 app.post("/save", pages.save);
 
-app.post("/count", pages.count);
-
 app.get("*", (req, res) => res.redirect("/"));
 
 const bellTimeController = require("./bellTime.js");

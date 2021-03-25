@@ -60,77 +60,39 @@ class Controller {
         inputName: "numberOfLessons",
       },
       lessons: lessons,
+      enabled: setting.enabled == "1" ? true : false,
     });
   }
 
   save(req, res) {
     const setting = settingController;
     let lessons = [];
+    const [LSH, LSM, LEH, LEM] = [
+      req.body.LSH,
+      req.body.LSM,
+      req.body.LEH,
+      req.body.LEM,
+    ];
+    const lesson = (i) => {
+      return [LSH[i], LSM[i], LEH[i], LEM[i]].join(" ");
+    };
+    const firstLesson = lesson(0);
     if (req.body.numberOfLessons != setting.Read().numberOfLessons) {
-      lessons = setting.CountLessons(
-        [
-          req.body.LSH[0],
-          req.body.LSM[0],
-          req.body.LEH[0],
-          req.body.LEM[0],
-        ].join(" "),
-        req.body.numberOfLessons
-      );
-      const settings = {
-        enabled: req.body.enable,
-        firstLesson: [
-          req.body.LSH[0],
-          req.body.LSM[0],
-          req.body.LEH[0],
-          req.body.LEM[0],
-        ].join(" "),
-        brakeDuration: req.body.bDuration,
-        numberOfLessons: req.body.numberOfLessons,
-        lessons: lessons,
-      };
-      setting.Write(settings);
+      lessons = setting.CountLessons(firstLesson, req.body.numberOfLessons);
     } else {
-      lessons = [];
       for (let i = 1; i <= req.body.numberOfLessons; i++) {
-        const param = [`${i} + LSH`, `${i} + LSM`];
-        lessons.push(
-          [
-            req.body.LSH[i],
-            req.body.LSM[i],
-            req.body.LEH[i],
-            req.body.LEM[i],
-          ].join(" ")
-        );
+        lessons.push(lesson(i));
       }
     }
     const settings = {
       enabled: req.body.enable,
-      firstLesson: [
-        req.body.LSH[0],
-        req.body.LSM[0],
-        req.body.LEH[0],
-        req.body.LEM[0],
-      ].join(" "),
+      firstLesson: firstLesson,
       brakeDuration: req.body.bDuration,
-      numberOfLessons: req.body.numberOfLessons,
-      lessons: lessons,
+      numberOfLessons:
+        req.body.numberOfLessons > 19 ? 19 : req.body.numberOfLessons,
+      lessons: lessons.length > 19 ? lessons.slice(0, 19) : lessons,
     };
     settingController.Write(settings);
-    res.redirect("/");
-  }
-
-  count(req, res) {
-    console.log(req.body);
-    settingController.Write(
-      settingController.CountLessons(
-        [
-          req.body.LSH[0],
-          req.body.LSM[0],
-          req.body.LEH[0],
-          req.body.LEM[0],
-        ].join(" ")
-      )
-    );
     res.redirect("/");
   }
 }
