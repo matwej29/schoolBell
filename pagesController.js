@@ -30,32 +30,26 @@ class Controller {
     });
     res.render("layout", {
       StartH: {
-        action: "/save",
         value: times[0],
         inputName: "LSH",
       },
       StartM: {
-        action: "/save",
         value: times[1],
         inputName: "LSM",
       },
       EndH: {
-        action: "/save",
         value: times[2],
         inputName: "LEH",
       },
       EndM: {
-        action: "/save",
         value: times[3],
         inputName: "LEM",
       },
       BrakeDuration: {
-        action: "/save",
         value: setting.brakeDuration,
         inputName: "bDuration",
       },
       numberOfLessons: {
-        action: "/save",
         value: setting.numberOfLessons,
         inputName: "numberOfLessons",
       },
