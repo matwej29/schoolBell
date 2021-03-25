@@ -1,10 +1,19 @@
 const SettingController = require("./settingsController.js");
 const settingController = new SettingController();
 
+const fs = require("fs");
+
 class Controller {
   home(req, res) {
     const setting = settingController.Read();
     const times = setting.firstLesson.split(" ");
+    const bells = (i) =>
+      fs.readdirSync("./static/sounds").map((item) => {
+        return {
+          value: item,
+          selected: item == setting.bells[i],
+        };
+      });
     let lessons = setting.lessons;
     lessons = lessons.map((item) => {
       return (item = item.split(" ").map((item, index) => {
@@ -54,7 +63,9 @@ class Controller {
         inputName: "numberOfLessons",
       },
       lessons: lessons,
-      enabled: setting.enabled == "1" ? true : false,
+      enabled: +setting.enabled,
+      Lbells: bells(0),
+      Bbells: bells(1),
     });
   }
 
@@ -71,8 +82,17 @@ class Controller {
       return [LSH[i], LSM[i], LEH[i], LEM[i]].join(" ");
     };
     const firstLesson = lesson(0);
-    if (req.body.numberOfLessons != setting.Read().numberOfLessons) {
-      lessons = setting.CountLessons(firstLesson, req.body.numberOfLessons);
+    const sRead = setting.Read();
+    if (
+      req.body.numberOfLessons != sRead.numberOfLessons ||
+      firstLesson != sRead.firstLesson ||
+      req.body.bDuration != sRead.brakeDuration
+    ) {
+      lessons = setting.CountLessons(
+        firstLesson,
+        req.body.numberOfLessons,
+        req.body.bDuration
+      );
     } else {
       for (let i = 1; i <= req.body.numberOfLessons; i++) {
         lessons.push(lesson(i));
@@ -85,6 +105,7 @@ class Controller {
       numberOfLessons:
         req.body.numberOfLessons > 19 ? 19 : req.body.numberOfLessons,
       lessons: lessons.length > 19 ? lessons.slice(0, 19) : lessons,
+      bells: req.body.bell,
     };
     settingController.Write(settings);
     res.redirect("/");

@@ -36,8 +36,17 @@
         <tr>
             <td>Звонок</td>
             <td>
+                Урок:
                 <select name="bell">
-                    <option value=""></option>
+                    {{#each this.Lbells}}
+                        <option value={{this.value}} {{#if this.selected}}selected{{/if}}>{{this.value}}</option>
+                    {{/each}}
+                </select>
+                Перемена:
+                <select name="bell">
+                    {{#each this.Bbells}}
+                        <option value={{this.value}} {{#if this.selected}}selected{{/if}}>{{this.value}}</option>
+                    {{/each}}
                 </select>
             </td>
         </tr>

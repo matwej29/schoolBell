@@ -1,11 +1,26 @@
 const SettingController = require("./settingsController.js");
 const settingController = new SettingController();
+
+const fs = require("fs");
+const player = require("play-sound")((opts = {}));
+
 class Controller {
   constructor() {
     this.founded = false;
   }
+
+  play(lesson, bells) {
+    if (lesson) {
+      console.log(bells);
+      player.play(`./static/sounds/${bells[0]}`);
+    } else {
+      player.play(`./static/sounds/${bells[1]}`);
+    }
+  }
+
   check() {
     if (settingController.Read().enabled == 0) return;
+    // console.log(fs.readdirSync("./static/sounds"));
     let lessons = settingController.Read().lessons;
     let now = new Date();
     now = [now.getHours(), now.getMinutes()].join(" ");
@@ -15,11 +30,10 @@ class Controller {
     });
     lessons.forEach((element) => {
       if (this.founded == false && element.includes(now)) {
-        if (element.indexOf(now) == 0) {
-          console.log("Звонок на урок");
-        } else {
-          console.log("Звонок с урока");
-        }
+        this.play(
+          element.indexOf(now) == 0 ? true : false,
+          settingController.Read().bells
+        );
         this.founded = true;
         console.log(this.founded);
         setTimeout(() => {

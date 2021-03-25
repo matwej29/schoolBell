@@ -8,10 +8,10 @@ class Controller {
    * Преобразует в минуты
    * @returns string list of lessons (["8 30 9 10", "9 20 10 00"])
    */
-  CountLessons(firstLesson, numberOfLessons) {
+  CountLessons(firstLesson, numberOfLessons, brake) {
+    brake = +brake;
     let fl = firstLesson; // First lesson
     fl = fl.split(" ").map(Number);
-    const brake = parseInt(this.settings.brakeDuration);
     const lduration = fl[3] + fl[2] * 60 - (fl[1] + fl[0] * 60);
     const lessons = [fl.join(" ")];
     let a = fl[0] * 60 + fl[1];
