@@ -20,8 +20,8 @@
             <td>Enabled</td>
             <td>
                 <select name="enable">
-                    <option value="1">On</option>
-                    <option value="0" selected>Off</option>
+                    <option value="1" selected>On</option>
+                    <option value="0">Off</option>
                 </select>
             </td>
         </tr>
@@ -45,7 +45,19 @@
                 {{> input BrakeDuration }}
             </td>
         </tr>
+        <tr>
+            <td>Number of Lessons</td>
+            <td>
+                {{> input numberOfLessons }}
+            </td>
+        </tr>
     </table>
+    <div>
+        {{#each this.lessons}}
+            {{> input this.[0]}}{{> input this.[1]}} - {{> input this.[2]}} -{{> input this.[3]}}
+            <p></p>
+        {{/each}}
+    </div>
     <button onclick="Save()" type="submit">Save</button>
     </form>
 </body>

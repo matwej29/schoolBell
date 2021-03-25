@@ -8,56 +8,22 @@ hbs.registerPartials(__dirname + "/views/partials");
 app.use("/static", express.static(__dirname + "/static"));
 app.use(express.urlencoded({ extended: true })); // для body
 
-const SettingController = require("./settingsController.js");
-const settingController = new SettingController();
+const PagesController = require("./pagesController.js");
+const pages = new PagesController();
 
-app.get("/", (req, res) => {
-  const setting = settingController.Read();
-  const times = setting.firstLesson.split(" ");
-  const bDuration = setting.brakeDuration;
-  res.render("layout", {
-    StartH: {
-      action: "/save",
-      value: times[0],
-      inputName: "LSH",
-    },
-    StartM: {
-      action: "/save",
-      value: times[1],
-      inputName: "LSM",
-    },
-    EndH: {
-      action: "/save",
-      value: times[2],
-      inputName: "LEH",
-    },
-    EndM: {
-      action: "/save",
-      value: times[3],
-      inputName: "LEM",
-    },
-    BrakeDuration: {
-      action: "/save",
-      value: bDuration,
-      inputName: "bDuration",
-    },
-  });
-});
+app.get("/", pages.home);
 
-app.post("/save", (req, res) => {
-  const settings = {
-    enabled: req.body.enable,
-    firstLesson: [req.body.LSH, req.body.LSM, req.body.LEH, req.body.LEM].join(
-      " "
-    ),
-    brakeDuration: req.body.bDuration,
-  };
-  settingController.Write(settings);
-  res.redirect("/");
-});
+app.post("/save", pages.save);
+
+app.post("/count", pages.count);
+
+app.get("*", (req, res) => res.redirect("/"));
+
+const bellTimeController = require("./bellTime.js");
+const bellTime = new bellTimeController();
 
 app.listen("3000", () => {
   setInterval(() => {
-    //
+    bellTime.check();
   }, 1000);
 });
