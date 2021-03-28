@@ -22,8 +22,16 @@ class Controller {
     if (settingController.Read().enabled == 0) return;
     let lessons = settingController.Read().lessons;
     let now = new Date();
-    now = [now.getHours(), now.getMinutes()].join(":");
+    now = [
+      now.getHours(),
+      now.getMinutes().toString().length == 1
+        ? "0" + now.getMinutes()
+        : now.getMinutes(),
+    ].join(":");
     lessons = lessons.join(" ").split(" ");
+    if (lessons.includes(now)) {
+      console.log("include");
+    }
     lessons.forEach((element) => {
       if (this.founded == false && element.includes(now)) {
         this.play(
