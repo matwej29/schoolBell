@@ -1,9 +1,19 @@
 # schoolBell
+
 discription
+
 # Установка
+
 1. Установить node.js
 2. После установки из репозитория в консоле прописать npm i для установки необходимых модулей
 3. Установить любой CLI-player
+
 # Использование
+
 1. В папку /static/sound/ загрузить мелодии в формате .mp3
 2. В консоле (открыта папка репозитория) прописать npm start
+
+# SQLite
+
+Создание таблицы
+CREATE TABLE days (id INTEGER PRIMARY KEY AUTOINCREMENT,dayOfWeek INTEGER, isEnabled INTEGER);

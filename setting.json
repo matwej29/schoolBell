@@ -1,8 +1,1 @@
-{
-  "enabled": "1",
-  "firstLesson": "8 30 9 10",
-  "brakeDuration": "10",
-  "numberOfLessons": "3",
-  "lessons": ["8 30 9 10", "5 19 10 0", "19 0 19 10"],
-  "bells": ["sfx2.mp3", "sfx1.mp3"]
-}
+{"enabled":"1","firstLesson":"08:30 09:10","brakeDuration":"10","numberOfLessons":"3","lessons":["08:30 09:10","09:20 10:00","10:10 10:50"],"bells":["sfx2.mp3","sfx1.mp3"]}

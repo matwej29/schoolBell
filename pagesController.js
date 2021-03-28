@@ -5,6 +5,7 @@ const fs = require("fs");
 
 class Controller {
   home(req, res) {
+    settingController.test();
     const setting = settingController.Read();
     const times = setting.firstLesson.split(" ");
     const bells = (i) =>
@@ -20,47 +21,29 @@ class Controller {
         let value = item;
         item = {};
         item.value = value;
-        switch (index) {
-          case 0:
-            item.inputName = "LSH";
-            break;
-          case 1:
-            item.inputName = "LSM";
-            break;
-          case 2:
-            item.inputName = "LEH";
-            break;
-          case 3:
-            item.inputName = "LEM";
-            break;
-        }
+        item.name = index == 0 ? "s" : "e";
+        item.type = "time";
         return item;
       }));
     });
     res.render("layout", {
       StartH: {
+        type: "time",
         value: times[0],
-        inputName: "LSH",
-      },
-      StartM: {
-        value: times[1],
-        inputName: "LSM",
+        name: "Start",
       },
       EndH: {
-        value: times[2],
-        inputName: "LEH",
-      },
-      EndM: {
-        value: times[3],
-        inputName: "LEM",
+        type: "time",
+        value: times[1],
+        name: "End",
       },
       BrakeDuration: {
         value: setting.brakeDuration,
-        inputName: "bDuration",
+        name: "bDuration",
       },
       numberOfLessons: {
         value: setting.numberOfLessons,
-        inputName: "numberOfLessons",
+        name: "numberOfLessons",
       },
       lessons: lessons,
       enabled: +setting.enabled,
@@ -72,14 +55,9 @@ class Controller {
   save(req, res) {
     const setting = settingController;
     let lessons = [];
-    const [LSH, LSM, LEH, LEM] = [
-      req.body.LSH,
-      req.body.LSM,
-      req.body.LEH,
-      req.body.LEM,
-    ];
+    const [start, end] = [req.body.s, req.body.e];
     const lesson = (i) => {
-      return [LSH[i], LSM[i], LEH[i], LEM[i]].join(" ");
+      return [start[i], end[i]].join(" ");
     };
     const firstLesson = lesson(0);
     const sRead = setting.Read();

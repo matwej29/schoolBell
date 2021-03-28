@@ -11,7 +11,16 @@ app.use(express.urlencoded({ extended: true })); // для body
 const PagesController = require("./pagesController.js");
 const pages = new PagesController();
 
+const SettingController = require("./settingsController.js");
+const settingController = new SettingController();
+settingController.__init();
+
 app.get("/", pages.home);
+
+app.get("/test", (req, res) => {
+  res.send("{'enabled: true'}");
+  JSON.stringify;
+});
 
 app.post("/save", pages.save);
 

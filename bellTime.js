@@ -11,7 +11,6 @@ class Controller {
 
   play(lesson, bells) {
     if (lesson) {
-      console.log(bells);
       player.play(`./static/sounds/${bells[0]}`);
     } else {
       player.play(`./static/sounds/${bells[1]}`);
@@ -20,7 +19,6 @@ class Controller {
 
   check() {
     if (settingController.Read().enabled == 0) return;
-    // console.log(fs.readdirSync("./static/sounds"));
     let lessons = settingController.Read().lessons;
     let now = new Date();
     now = [now.getHours(), now.getMinutes()].join(" ");
@@ -35,10 +33,8 @@ class Controller {
           settingController.Read().bells
         );
         this.founded = true;
-        console.log(this.founded);
         setTimeout(() => {
           this.founded = false;
-          console.log(this.founded);
         }, 61000);
       }
     });
