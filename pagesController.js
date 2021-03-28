@@ -54,16 +54,17 @@ class Controller {
 
   save(req, res) {
     const setting = settingController;
-    let lessons = [];
     const [start, end] = [req.body.s, req.body.e];
     const lesson = (i) => {
       return [start[i], end[i]].join(" ");
     };
-    const firstLesson = lesson(0);
+    const firstLesson = [req.body.Start, req.body.End].join(" ");
+    let lessons = [firstLesson];
     const sRead = setting.Read();
     if (
       req.body.numberOfLessons != sRead.numberOfLessons ||
       firstLesson != sRead.firstLesson ||
+      firstLesson != lesson(0) ||
       req.body.bDuration != sRead.brakeDuration
     ) {
       lessons = setting.CountLessons(
@@ -72,7 +73,7 @@ class Controller {
         req.body.bDuration
       );
     } else {
-      for (let i = 1; i <= req.body.numberOfLessons; i++) {
+      for (let i = 1; i < req.body.numberOfLessons; i++) {
         lessons.push(lesson(i));
       }
     }
