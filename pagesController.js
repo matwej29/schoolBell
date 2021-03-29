@@ -6,7 +6,7 @@ const fs = require("fs");
 class Controller {
   home(req, res) {
     const setting = settingController.Read();
-    const firstLesson = settingController.lessons[0];
+    const firstLesson = settingController.lessons[0].split(" ");
     const bells = (i) =>
       fs.readdirSync("./static/sounds").map((item) => {
         return {
@@ -16,17 +16,26 @@ class Controller {
       });
 
     let lessons = settingController.lessons;
-    console.log(lessons);
+    lessons = lessons.map((item) => {
+      return (item = item.split(" ").map((item, index) => {
+        let value = item;
+        item = {};
+        item.value = value;
+        item.name = index == 0 ? "s" : "e";
+        item.type = "time";
+        return item;
+      }));
+    });
     res.render("layout", {
       StartH: {
         type: "time",
-        value: firstLesson.timeStart,
-        name: "Start",
+        value: firstLesson[0],
+        name: "timeStart",
       },
       EndH: {
         type: "time",
-        value: firstLesson.timeEnd,
-        name: "End",
+        value: firstLesson[1],
+        name: "timeEnd",
       },
       BrakeDuration: {
         value: setting.brakeDuration,
@@ -43,19 +52,13 @@ class Controller {
     });
   }
 
-  // not working yet
   save(req, res) {
-    return;
     const setting = settingController;
-    const [start, end] = [req.body.timeStart, req.body.timeEnd];
+    const [start, end] = [req.body.s, req.body.e];
     const lesson = (i) => {
       return [start[i], end[i]].join(" ");
     };
-    const firstLesson = {
-      id: 0,
-      timeStart: req.body.Start,
-      timeEnd: req.body.End,
-    };
+    const firstLesson = [req.body.timeStart, req.body.timeEnd].join(" ");
     let lessons = [firstLesson];
     const sRead = setting.Read();
     if (

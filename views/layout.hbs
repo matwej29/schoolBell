@@ -71,8 +71,7 @@
     </table>
     <div>
         {{#each this.lessons}}
-            {{> input value=this.timeStart name="timeStart" type='time'}} -
-            {{> input value=this.timeEnd name="timeEnd" type='time'}}
+            {{> input this.[0]}} {{> input this.[1]}}
             <p></p>
         {{/each}}
     </div>
