@@ -5,9 +5,8 @@ const fs = require("fs");
 
 class Controller {
   home(req, res) {
-    settingController.test();
     const setting = settingController.Read();
-    const times = setting.firstLesson.split(" ");
+    const firstLesson = settingController.lessons[0].split(" ");
     const bells = (i) =>
       fs.readdirSync("./static/sounds").map((item) => {
         return {
@@ -15,7 +14,8 @@ class Controller {
           selected: item == setting.bells[i],
         };
       });
-    let lessons = setting.lessons;
+
+    let lessons = settingController.lessons;
     lessons = lessons.map((item) => {
       return (item = item.split(" ").map((item, index) => {
         let value = item;
@@ -29,13 +29,13 @@ class Controller {
     res.render("layout", {
       StartH: {
         type: "time",
-        value: times[0],
-        name: "Start",
+        value: firstLesson[0],
+        name: "timeStart",
       },
       EndH: {
         type: "time",
-        value: times[1],
-        name: "End",
+        value: firstLesson[1],
+        name: "timeEnd",
       },
       BrakeDuration: {
         value: setting.brakeDuration,
@@ -58,7 +58,7 @@ class Controller {
     const lesson = (i) => {
       return [start[i], end[i]].join(" ");
     };
-    const firstLesson = [req.body.Start, req.body.End].join(" ");
+    const firstLesson = [req.body.timeStart, req.body.timeEnd].join(" ");
     let lessons = [firstLesson];
     const sRead = setting.Read();
     if (
@@ -83,9 +83,11 @@ class Controller {
       brakeDuration: req.body.bDuration,
       numberOfLessons:
         req.body.numberOfLessons > 19 ? 19 : req.body.numberOfLessons,
-      lessons: lessons.length > 19 ? lessons.slice(0, 19) : lessons,
       bells: req.body.bell,
     };
+    settingController.dbWriteLessons(
+      lessons.length > 19 ? lessons.slice(0, 19) : lessons
+    );
     settingController.Write(settings);
     res.redirect("/");
   }
