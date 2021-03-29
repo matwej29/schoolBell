@@ -16,4 +16,5 @@ discription
 # SQLite
 
 Создание таблицы
-CREATE TABLE days (id INTEGER PRIMARY KEY AUTOINCREMENT,dayOfWeek INTEGER, isEnabled INTEGER);
+CREATE TABLE days (id INTEGER PRIMARY KEY AUTOINCREMENT, dayOfWeek INTEGER, isEnabled INTEGER);
+CREATE TABLE bells (id integer primary key autoincrement, timeStart time, timeEnd time);

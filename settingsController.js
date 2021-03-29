@@ -6,6 +6,7 @@ const db = require("better-sqlite3")("./db/schedules.db", {
 class Controller {
   constructor() {
     this.settings = this.Read();
+    this.lessons = this.dbReadLessons();
   }
 
   __init() {
@@ -18,10 +19,6 @@ class Controller {
         insert.run({ id: i, dayOfWeek: i, isEnabled: 0 });
       }
     }
-  }
-
-  test() {
-    //
   }
 
   /**
@@ -40,11 +37,11 @@ class Controller {
       let lessonEnd = lessonStart + lduration;
       const start = (item) => {
         item = Math.floor(item / 60).toString();
-        return item.length == 1 ? "0" + item : item;
+        return item;
       };
       const end = (item) => {
         item = Math.floor(item % 60).toString();
-        return item.length == 1 ? "0" + item : item;
+        return item;
       };
       lessonStart = start(lessonStart) + ":" + end(lessonStart);
       lessonEnd = start(lessonEnd) + ":" + end(lessonEnd);
@@ -54,9 +51,45 @@ class Controller {
     return lessons;
   }
 
+  dbReadLessons() {
+    let lessons = db.prepare("select * from bells").all();
+    lessons = lessons.map((item) => {
+      return (item = [item.timeStart, item.timeEnd].join(" "));
+    });
+    return (this.lessons = lessons); // я переприсваиваю this.lessons?
+  }
+
   Read() {
     const settings = JSON.parse(fs.readFileSync("setting.json"));
     return (this.settings = settings);
+  }
+
+  dbWriteLessons(lessons) {
+    // возможно стоит использовать update, но он вроде для обновления существующих записей
+    db.prepare("delete from bells").run();
+
+    const insert = db.prepare(
+      "insert into bells (id, timeStart, timeEnd) values (@id, @timeStart, @timeEnd)"
+    );
+    lessons = lessons.map((item) => {
+      return item
+        .split(" ")
+        .map((item) => {
+          return item
+            .split(":")
+            .map((item) => {
+              return item.length == 1 ? "0" + item : item;
+            })
+            .join(":");
+        })
+        .join(" ");
+    });
+    lessons.forEach((element, index) => {
+      let [start, end] = element.split(" ");
+      insert.run({ id: index, timeStart: start, timeEnd: end });
+    });
+    this.dbReadLessons();
+    return lessons;
   }
 
   Write(settings) {

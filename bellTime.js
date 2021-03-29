@@ -10,7 +10,6 @@ class Controller {
   }
 
   play(lesson, bells) {
-    console.log("play");
     if (lesson) {
       player.play(`./static/sounds/${bells[0]}`);
     } else {
@@ -19,19 +18,12 @@ class Controller {
   }
 
   check() {
-    if (settingController.Read().enabled == 0) return;
-    let lessons = settingController.Read().lessons;
+    if (settingController.settings.enabled == 0) return;
+    let lessons = settingController.lessons;
     let now = new Date();
-    now = [
-      now.getHours(),
-      now.getMinutes().toString().length == 1
-        ? "0" + now.getMinutes()
-        : now.getMinutes(),
-    ].join(":");
+    now = [now.getHours(), now.getMinutes()].join(":");
     lessons = lessons.join(" ").split(" ");
-    if (lessons.includes(now)) {
-      console.log("include");
-    }
+    // заменить на lessons.includes(now) ?
     lessons.forEach((element) => {
       if (this.founded == false && element.includes(now)) {
         this.play(
