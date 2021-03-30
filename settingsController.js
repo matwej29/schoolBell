@@ -35,27 +35,29 @@ class Controller {
     for (let i = 1; i < numberOfLessons; i++) {
       let lessonStart = a + (lduration + brake) * i;
       let lessonEnd = lessonStart + lduration;
-      const start = (item) => {
+      const hours = (item) => {
         item = Math.floor(item / 60).toString();
-        return item;
+        return item.length == 1 ? "0" + item : item;
       };
-      const end = (item) => {
+      const minutes = (item) => {
         item = Math.floor(item % 60).toString();
-        return item;
+        return item.length == 1 ? "0" + item : item;
       };
-      lessonStart = start(lessonStart) + ":" + end(lessonStart);
-      lessonEnd = start(lessonEnd) + ":" + end(lessonEnd);
+      lessonStart = hours(lessonStart) + ":" + minutes(lessonStart);
+      lessonEnd = hours(lessonEnd) + ":" + minutes(lessonEnd);
 
-      lessons.push(lessonStart + " " + lessonEnd);
+      const item = {
+        id: i,
+        timeStart: lessonStart,
+        timeEnd: lessonEnd,
+      };
+      lessons.push(item);
     }
     return lessons;
   }
 
   dbReadLessons() {
     let lessons = db.prepare("select * from bells").all();
-    lessons = lessons.map((item) => {
-      return (item = [item.timeStart, item.timeEnd].join(" "));
-    });
     return (this.lessons = lessons); // я переприсваиваю this.lessons?
   }
 
@@ -71,19 +73,6 @@ class Controller {
     const insert = db.prepare(
       "insert into bells (id, timeStart, timeEnd) values (@id, @timeStart, @timeEnd)"
     );
-    lessons = lessons.map((item) => {
-      return item
-        .split(" ")
-        .map((item) => {
-          return item
-            .split(":")
-            .map((item) => {
-              return item.length == 1 ? "0" + item : item;
-            })
-            .join(":");
-        })
-        .join(" ");
-    });
     lessons.forEach((element, index) => {
       let [start, end] = element.split(" ");
       insert.run({ id: index, timeStart: start, timeEnd: end });
