@@ -89,8 +89,9 @@ class Controller {
     res.redirect("/");
   }
 
-  test(req, res){
-    res.send(JSON.stringify("{enabled: true id:4}"));
+  test(req, res) {
+    const id = parseInt(req.query.id,10);
+    res.send(JSON.stringify({"id":id,"enabled":true, "lessons": ['20:34 20:36', '20:30 20:33']}));
   }
 }
 
