@@ -67,7 +67,7 @@ class Controller {
       lessons = setting.CountLessons(
         firstLesson,
         req.body.numberOfLessons,
-        req.body.bDuration
+        req.body.bDuration,
       );
     } else {
       for (let i = 1; i < req.body.numberOfLessons; i++) {
@@ -83,10 +83,14 @@ class Controller {
       bells: req.body.bell,
     };
     settingController.dbWriteLessons(
-      lessons.length > 19 ? lessons.slice(0, 19) : lessons
+      lessons.length > 19 ? lessons.slice(0, 19) : lessons,
     );
     settingController.Write(settings);
     res.redirect("/");
+  }
+
+  test(req, res){
+    res.send(JSON.stringify("{enabled: true id:4}"));
   }
 }
 

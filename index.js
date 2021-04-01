@@ -17,9 +17,7 @@ settingController.__init();
 
 app.get("/", pages.home);
 
-app.get("/test", (req, res) => {
-  res.send(JSON.stringify("{enabled: true}"));
-});
+app.get("/test", pages.test);
 
 app.post("/save", pages.save);
 
