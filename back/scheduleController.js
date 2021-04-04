@@ -1,4 +1,4 @@
-const schedule = require("./schedule.js");
+const schedule = require('./schedule.js');
 
 class Controller {
   async day(req, res) {
@@ -8,12 +8,13 @@ class Controller {
         dayOfWeek: dayOfWeek,
       },
     });
-
+    
     res.send(day);
   }
 
   async days(req, res) {
     let days = await schedule.Lesson.findAll();
+
     res.send(days);
   }
 

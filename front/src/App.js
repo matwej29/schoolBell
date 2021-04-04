@@ -1,7 +1,7 @@
-import logo from "./logo.svg";
-import "./App.css";
-import React from "react";
-import ReactDOM from "react-dom";
+import logo from './logo.svg';
+import './App.css';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const Lesson = ({ timeStart, timeEnd, onChange }) => {
   const onTimeStartChange = (e) => {
@@ -13,14 +13,14 @@ const Lesson = ({ timeStart, timeEnd, onChange }) => {
   return (
     <td>
       <input
-        type="time"
-        name="timeStart"
+        type='time'
+        name='timeStart'
         value={timeStart}
         onChange={onTimeStartChange}
       ></input>
       <input
-        type="time"
-        name="timeEnd"
+        type='time'
+        name='timeEnd'
         value={timeEnd}
         onChange={onTimeEndChange}
       ></input>
@@ -33,10 +33,10 @@ const lessonsSave = async (data, dayOfWeek) => {
     `http://localhost:3000/saveDay?dayOfWeek=${dayOfWeek}`,
     {
       headers: {
-        Accept: "application/json, *.*",
-        "Content-Type": "application/json; charset=utf-8",
+        Accept: 'application/json, *.*',
+        'Content-Type': 'application/json; charset=utf-8',
       },
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ day: data }),
     }
   );
@@ -45,7 +45,12 @@ const lessonsSave = async (data, dayOfWeek) => {
 
 const getDay = async (day) => {
   let response = await fetch(`http://localhost:3000/day?dayOfWeek=${day}`, {
-    //
+    headers: {
+      Accept: 'application/json, *.*',
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    method: "GET",
+    // mode: "no-cors"
   });
 
   if (response.ok) {

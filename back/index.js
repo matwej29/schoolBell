@@ -1,15 +1,17 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser").json();
+const cors = require("cors")
 
-// app.use("/static", express.static(__dirname + "/static"));
+app.use(cors());
+app.options('*', cors());
 app.use(express.urlencoded({ extended: true })); // для body
 
 const scheduleController = require("./scheduleController.js");
 const schedule = new scheduleController();
 
 // app.get("/", (req, res) => {
-//   res.sendFile(__dirname + "/static/main.html");
+//   res.send("не используется")
 // });
 
 app.get("/day", schedule.day);
