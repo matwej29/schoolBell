@@ -1,3 +1,8 @@
+import logo from "./logo.svg";
+import "./App.css";
+import React from "react";
+import ReactDOM from "react-dom";
+
 const Lesson = ({ timeStart, timeEnd, onChange }) => {
   const onTimeStartChange = (e) => {
     onChange({ timeStart: e.target.value, timeEnd });
@@ -23,48 +28,30 @@ const Lesson = ({ timeStart, timeEnd, onChange }) => {
   );
 };
 
-const buttons = [
-  { name: "day1", disabled: false },
-  { name: "day2", disabled: false },
-  { name: "day3", disabled: false },
-  { name: "day4", disabled: false },
-  { name: "day5", disabled: false },
-  { name: "day6", disabled: false },
-  { name: "day7", disabled: false },
-  { name: "settings", disabled: false },
-];
-
 const lessonsSave = async (data, dayOfWeek) => {
-  const response = await fetch(`/saveDay?dayOfWeek=${dayOfWeek}`, {
-    headers: {
-      Accept: "application/json, *.*",
-      "Content-Type": "application/json; charset=utf-8",
-    },
-    method: "POST",
-    body: JSON.stringify({ day: data }),
-  });
+  const response = await fetch(
+    `http://localhost:3000/saveDay?dayOfWeek=${dayOfWeek}`,
+    {
+      headers: {
+        Accept: "application/json, *.*",
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      method: "POST",
+      body: JSON.stringify({ day: data }),
+    }
+  );
   return response;
 };
 
 const getDay = async (day) => {
-  let response = await fetch(`/day?dayOfWeek=${day}`);
+  let response = await fetch(`http://localhost:3000/day?dayOfWeek=${day}`, {
+    //
+  });
 
   if (response.ok) {
     return response.json();
   }
 };
-
-// const menuSelect = (name) => {
-//   alert(name);
-//   switch (name) {
-//     case "settings":
-//       // render
-//       break;
-
-//     default:
-//       break;
-//   }
-// };
 
 const App = (dayOfWeek) => {
   const [date, setDate] = React.useState(dayOfWeek.dayOfWeek);
@@ -123,19 +110,5 @@ const App = (dayOfWeek) => {
     </div>
   );
 };
-const renderDay = () => {
-  ReactDOM.render(
-    <div>
-      <App dayOfWeek={1} />
-      <App dayOfWeek={2} />
-      <App dayOfWeek={3} />
-      <App dayOfWeek={4} />
-      <App dayOfWeek={5} />
-      <App dayOfWeek={6} />
-      <App dayOfWeek={7} />
-    </div>,
-    document.getElementById("template")
-  );
-};
 
-renderDay();
+export default App;
