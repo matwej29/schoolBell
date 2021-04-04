@@ -20,7 +20,6 @@ def response():
             start = str(t["timeStart"])
             end = str(t["timeEnd"])
             lessons.append([start,end])
-        print(lessons)
     else:
         id = 0
 
@@ -31,7 +30,6 @@ def check():
         h = str(time.strftime("%H"))
         if m == '9':
             response()
-            print('response', time.time("%H%M"))
         for t in lessons:
             if t[0] == h+':'+m:
                 playsound.playsound('./client/sounds/sfx1.mp3')
