@@ -16,7 +16,7 @@ def response():
     if id == 0:  # если воскресенье, то у python - 0
         id = 7  # а у базы данных - 7
     if 0 < id < 8:  # проверка дня недели, нет смысла выполнять скрипт по воскресеньям
-        conf = open("./client/config.json", "r").read()  # получаем конфиг
+        conf = open("./config.json", "r").read()  # получаем конфиг
         connection_config = json.loads(conf)  # преобразуем в объект python
         ip = connection_config["ip"]
         port = connection_config["port"]
@@ -38,12 +38,12 @@ def check():
             response()  # то делается обновление расписания (в итоге - раз в 10 минут)
         for t in lessons:
             if t[0] == h + ":" + m:  # проверка на начало урока
-                playsound.playsound("./client/sounds/sfx1.mp3")  # первый звонок
+                playsound.playsound("./sounds/sfx1.mp3")  # первый звонок
                 time.sleep(15)  # ожидаем 15 секунд
-                playsound.playsound("./client/sounds/sfx1.mp3")  # второй звонок
+                playsound.playsound("./sounds/sfx1.mp3")  # второй звонок
                 time.sleep(45)  # ожидаем еще 45 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
             elif t[1] == h + ":" + m:  # проверка на перемену
-                playsound.playsound("./client/sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
+                playsound.playsound("./sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
                 time.sleep(60)
 
 
