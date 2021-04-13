@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
+const config = require("./config.json");
 
 const Lesson = ({ timeStart, timeEnd, onChange }) => {
   const onTimeStartChange = (e) => {
@@ -30,7 +31,7 @@ const Lesson = ({ timeStart, timeEnd, onChange }) => {
 
 const lessonsSave = async (data, dayOfWeek) => {
   const response = await fetch(
-    `http://localhost:4000/saveDay?dayOfWeek=${dayOfWeek}`,
+    `http://${config.adress}/saveDay?dayOfWeek=${dayOfWeek}`,
     {
       headers: {
         Accept: 'application/json, *.*',
@@ -44,7 +45,7 @@ const lessonsSave = async (data, dayOfWeek) => {
 };
 
 const getDay = async (day) => {
-  let response = await fetch(`http://localhost:4000/day?dayOfWeek=${day}`, {
+  let response = await fetch(`http://${config.adress}/day?dayOfWeek=${day}`, {
     headers: {
       Accept: 'application/json, *.*',
       'Content-Type': 'application/json; charset=utf-8',
