@@ -30,7 +30,7 @@ const Lesson = ({ timeStart, timeEnd, onChange }) => {
 
 const lessonsSave = async (data, dayOfWeek) => {
   const response = await fetch(
-    `http://localhost:3000/saveDay?dayOfWeek=${dayOfWeek}`,
+    `http://localhost:4000/saveDay?dayOfWeek=${dayOfWeek}`,
     {
       headers: {
         Accept: 'application/json, *.*',
@@ -44,7 +44,7 @@ const lessonsSave = async (data, dayOfWeek) => {
 };
 
 const getDay = async (day) => {
-  let response = await fetch(`http://localhost:3000/day?dayOfWeek=${day}`, {
+  let response = await fetch(`http://localhost:4000/day?dayOfWeek=${day}`, {
     headers: {
       Accept: 'application/json, *.*',
       'Content-Type': 'application/json; charset=utf-8',

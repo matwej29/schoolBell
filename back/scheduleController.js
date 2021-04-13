@@ -23,7 +23,7 @@ class Controller {
     await schedule.Lesson.destroy({ where: { dayOfWeek: dayOfWeek } });
     console.log(req.body.day);
     req.body.day.forEach(async (element) => {
-      await schedule.Lesson.upsert(element); // а где insert ?
+      await schedule.Lesson.upsert(element);
     });
     res.send(true);
   }
