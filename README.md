@@ -1,6 +1,6 @@
-# WIP
+# Description
 
-discription
+description
 
 # Установка
 
@@ -16,8 +16,7 @@ discription
 2. В консоле (открыта папка `back`) прописать `npm start` для запуска backend`а
 3. В консоле (открыта папка `front`) прописать `npm start` для запуска frontend`a
 
-# production
-
-Пока не запускать
+# Building
 1. В консоле `npm run build` (папка front)
-2. В консоле `node index.js` (папка back)
+Папку build необходимо отсылать, можно использовать nginx для этого или любой другой веб-сервер
+3. В консоле `node index.js` (папка back)
