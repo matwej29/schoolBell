@@ -16,7 +16,7 @@ def response():
     if id == 0:  # если воскресенье, то у python - 0
         id = 7  # а у базы данных - 7
     if 0 < id < 8:  # проверка дня недели, нет смысла выполнять скрипт по воскресеньям
-        conf = open("./client/config.json", "r").read()  # получаем конфиг
+        conf = open("./config.json", "r").read()  # получаем конфиг
         connection_config = json.loads(conf)  # преобразуем в объект python
         ip = connection_config["ip"]
         port = connection_config["port"]
@@ -43,7 +43,7 @@ def check():
                 playsound.playsound("./client/sounds/sfx1.mp3")  # второй звонок
                 time.sleep(30)  # ожидаем еще 30 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
             elif t[1] == h + ":" + m:  # проверка на перемену
-                playsound.playsound("./client/sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
+                playsound.playsound("./sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
                 time.sleep(60)
 
 

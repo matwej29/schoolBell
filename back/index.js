@@ -10,9 +10,9 @@ app.use(express.urlencoded({ extended: true })); // для body
 const scheduleController = require("./scheduleController.js");
 const schedule = new scheduleController();
 
-// app.get("/", (req, res) => {
-//   res.send("не используется")
-// });
+app.get("/", (req, res) => {
+   res.send("Пусто")
+});
 
 app.get("/day", schedule.day);
 
@@ -22,4 +22,4 @@ app.post("/saveDay", bodyParser, schedule.saveDay);
 
 app.get("*", (req, res) => res.redirect("/"));
 
-app.listen("3000");
+app.listen("4000");
