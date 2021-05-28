@@ -39,9 +39,9 @@ def check():
         for t in lessons:
             if t[0] == h + ":" + m:  # проверка на начало урока
                 playsound.playsound("./client/sounds/sfx1.mp3")  # первый звонок
-                time.sleep(30)  # ожидаем 30 секунд
+                time.sleep(15)  # ожидаем 15 секунд
                 playsound.playsound("./client/sounds/sfx1.mp3")  # второй звонок
-                time.sleep(30)  # ожидаем еще 30 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
+                time.sleep(45)  # ожидаем еще 45 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
             elif t[1] == h + ":" + m:  # проверка на перемену
                 playsound.playsound("./sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
                 time.sleep(60)
