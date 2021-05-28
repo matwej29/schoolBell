@@ -38,10 +38,10 @@ def check():
             response()  # то делается обновление расписания (в итоге - раз в 10 минут)
         for t in lessons:
             if t[0] == h + ":" + m:  # проверка на начало урока
-                playsound.playsound("./sounds/sfx1.mp3")  # первый звонок
-                time.sleep(15)  # ожидаем 15 секунд
-                playsound.playsound("./sounds/sfx1.mp3")  # второй звонок
-                time.sleep(45)  # ожидаем еще 45 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
+                playsound.playsound("./client/sounds/sfx1.mp3")  # первый звонок
+                time.sleep(30)  # ожидаем 30 секунд
+                playsound.playsound("./client/sounds/sfx1.mp3")  # второй звонок
+                time.sleep(30)  # ожидаем еще 30 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
             elif t[1] == h + ":" + m:  # проверка на перемену
                 playsound.playsound("./sounds/sfx2.mp3")  # звонок и ожидание 60 секунд
                 time.sleep(60)
