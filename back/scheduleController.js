@@ -2,7 +2,7 @@ const schedule = require('./schedule.js');
 
 class Controller {
   async day(req, res) {
-    const dayOfWeek = req.query.dayOfWeek;
+    const dayOfWeek = req.query.dayOfWeek ?? 0;
     const day = await schedule.Lesson.findAll({
       where: {
         dayOfWeek: dayOfWeek,
@@ -26,6 +26,11 @@ class Controller {
       await schedule.Lesson.upsert(element);
     });
     res.send(true);
+  }
+
+  async getDays(){
+    const days = await schedule.Lesson.findAll();
+    return days
   }
 }
 
