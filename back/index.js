@@ -13,13 +13,13 @@ const io = require("socket.io")(server, {
 app.use(cors());
 app.options("*", cors());
 app.use(express.urlencoded({ extended: true })); // для body
-// app.use(express.static(__dirname + "/build"));
+app.use(express.static(__dirname + '/../front/build'));
 
 const scheduleController = require("./scheduleController.js");
 const schedule = new scheduleController();
 
 app.get("/", (req, res) => {
-  res.send("empty");
+  res.sendFile(__dirname + '/../front/build/index.html');
 });
 
 app.get("/day", schedule.day);

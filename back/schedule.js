@@ -4,6 +4,7 @@ const { Sequelize, DataTypes, Model } = require("sequelize");
 const sequelize = new Sequelize({
   dialect: "sqlite",
   storage: __dirname + "/db/schedules.db",
+  logging: undefined
 });
 
 class Lesson extends Model {}
