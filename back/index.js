@@ -29,10 +29,10 @@ app.get("/days", schedule.days);
 app.post(
   "/saveDay",
   bodyParser,
-  () => io.local.emit(schedule.getDays()),
-  schedule.saveDay
+  schedule.saveDay,
+  () => io.local.emit(JSON.stringify(schedule.getDays())),
 );
 
 // app.get("*", (req, res) => res.redirect("/"));
 
-server.listen("4000");
+server.listen(4000);

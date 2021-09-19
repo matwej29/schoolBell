@@ -15,10 +15,10 @@ class Controller {
   async days(req, res) {
     let days = await schedule.Lesson.findAll();
 
-    res.send(days);
+    res.send(JSON.stringify(days));
   }
 
-  async saveDay(req, res) {
+  async saveDay(req, res, next) {
     const dayOfWeek = req.query.dayOfWeek;
     await schedule.Lesson.destroy({ where: { dayOfWeek: dayOfWeek } });
     console.log(req.body.day);
@@ -26,6 +26,7 @@ class Controller {
       await schedule.Lesson.upsert(element);
     });
     res.send(true);
+    next();
   }
 
   async getDays(){

@@ -16,18 +16,10 @@
 </head>
 
 <body>
-  <p id="time">time now</p>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="template"></div>
 </body>
 
-<script>
-  const time = setInterval(function () {
-    const date = new Date();
-    document.getElementById("time").innerHTML =
-      date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-  }, 1000);
-</script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
 </html>
