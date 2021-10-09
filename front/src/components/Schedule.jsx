@@ -1,17 +1,16 @@
 // import './Lesson.css';
 import React from "react";
 import { io } from "socket.io-client";
+import { Link } from "react-router-dom";
 // import ReactDOM from 'react-dom';
-const config = require("./config.json");
 const socket = io("localhost:8080");
-let lessons = [];
-
-const get_lessons = () => {
-  socket.on("lessons", (res) => {
-    lessons = res;
-    console.log(lessons);
-  });
+const lessons = {
+  lessons: [],
+  get: (day) => {
+    this.lessons.filter((lesson) => lesson.id === day);
+  },
 };
+socket.on("lessons", (res) => lessons.lessons = res);
 
 const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
   const onTimeStartChange = (e) => {
@@ -46,14 +45,11 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
 };
 
 const lessonsSave = (data, dayOfWeek) => {
-  socket.emit(
-    "write_lessons",
-    lessons
-  );
+  socket.emit("write_lessons", lessons);
 };
 
 const getDay = (day) => {
-  return lessons.filter((lesson) => lesson.id === day);
+  return lessons.get(day);
 };
 
 const LessonsDay = (dayOfWeek) => {
@@ -161,9 +157,9 @@ const LessonsDay = (dayOfWeek) => {
 };
 
 const Schedule = () => {
-  get_lessons()
   return (
     <React.Fragment>
+      <Link to="/settings">Settings without style</Link>
       <div className="container-fluid px-4">
         <div className="row row-cols-auto gx-6">
           <LessonsDay className="col" dayOfWeek={1} />

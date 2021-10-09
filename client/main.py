@@ -2,11 +2,12 @@ import json
 import schedule
 import threading
 import time
-import socketio
+import socketio # python-socketio
 import playsound
-import asyncio
+# import asyncio
 from aiohttp import web
 
+path_to_static="../front/build/"
 
 sio = socketio.AsyncServer(cors_allowed_origins="*")
 app = web.Application()
@@ -25,7 +26,7 @@ def run_threaded(job_func):
 # ------------------ socket-io
 async def index(request):
     """Serve the client-side application."""
-    with open('static/index.html') as f:
+    with open(path_to_static+'index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 def getConfig():
@@ -59,8 +60,8 @@ async def connect(sid, environ, auth):
     print("connected", sid)
     await sio.emit('lessons', lessons)
 
-app.router.add_static('/static', 'static')
-app.router.add_get('/', index)
+app.router.add_static('/static', path=path_to_static)
+app.router.add_get('', index)
 # -----------------------
 
 # ----------------------- bells
@@ -80,12 +81,8 @@ def check():
         for t in lessons[id]:
             if t[0] == h + ":" + m:  # проверка на начало урока
                 playsound.playsound(
-                    "./client/sounds/sfx1.mp3")  # первый звонок
-                time.sleep(30)  # ожидаем 15 секунд
-                playsound.playsound(
-                    "./client/sounds/sfx1.mp3")  # второй звонок
-                # ожидаем еще 45 секунд, иначе звонки повторяться (нужно, чтобы время перешло на след. минуту)
-                time.sleep(30)
+                    "./sounds/sfx1.mp3")  # первый звонок
+                time.sleep(60)
             elif t[1] == h + ":" + m:  # проверка на перемену
                 # звонок и ожидание 60 секунд
                 playsound.playsound("./sounds/sfx2.mp3")
@@ -94,8 +91,21 @@ def check():
 
 get_lessons()
 
-run_threaded(web.run_app(app))
-schedule.every(1).seconds.do(run_threaded, check)
+def run_continuously(interval=1):
+    cease_continuous_run = threading.Event()
 
-while True:
-    schedule.run_pending()  # непрерываемая функция
+    class ScheduleThread(threading.Thread):
+        @classmethod
+        def run(cls):
+            while not cease_continuous_run.is_set():
+                schedule.run_pending()
+                time.sleep(interval)
+
+    continuous_thread = ScheduleThread()
+    continuous_thread.start()
+    return cease_continuous_run
+
+# Start the background thread
+stop_run_continuously = run_continuously()
+schedule.every(1).seconds.do(check)
+run_threaded(web.run_app(app))
