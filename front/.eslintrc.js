@@ -12,5 +12,9 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', 'prettier', 'react-hooks', 'import', 'jsx-a11y'],
-  rules: { 'react/prop-types': 0 },
+  rules: {
+    'react/prop-types': 0,
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
+  },
 };

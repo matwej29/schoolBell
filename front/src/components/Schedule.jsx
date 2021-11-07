@@ -19,7 +19,7 @@ const useSocket = () => {
       if (!ref.current) return;
       ref.current = ref.current.on(event, handler);
     },
-    [ref.current]
+    []
   );
 
   return { socket: ref.current, addListener };
@@ -203,20 +203,20 @@ const LessonsDay = (dayOfWeek) => {
 };
 
 const Schedule = () => (
-    <>
-      <Link to="/settings">Settings without style</Link>
-      <div className="container-fluid px-4">
-        <div className="row row-cols-auto gx-6">
-          <LessonsDay className="col" dayOfWeek={1} />
-          <LessonsDay className="col" dayOfWeek={2} />
-          <LessonsDay className="col" dayOfWeek={3} />
-          <LessonsDay className="col" dayOfWeek={4} />
-          <LessonsDay className="col" dayOfWeek={5} />
-          <LessonsDay className="col" dayOfWeek={6} />
-          <LessonsDay className="col" dayOfWeek={7} />
-        </div>
+  <>
+    <Link to="/settings">Settings without style</Link>
+    <div className="container-fluid px-4">
+      <div className="row row-cols-auto gx-6">
+        <LessonsDay className="col" dayOfWeek={1} />
+        <LessonsDay className="col" dayOfWeek={2} />
+        <LessonsDay className="col" dayOfWeek={3} />
+        <LessonsDay className="col" dayOfWeek={4} />
+        <LessonsDay className="col" dayOfWeek={5} />
+        <LessonsDay className="col" dayOfWeek={6} />
+        <LessonsDay className="col" dayOfWeek={7} />
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 
 export default Schedule;
