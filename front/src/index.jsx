@@ -1,10 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
-import Schedule from "./components/Schedule";
-import Settings from "./components/Settings";
+import Schedule from './components/Schedule';
+import Settings from './components/Settings';
 
 ReactDOM.render(
   <React.StrictMode className="wrapper">
@@ -19,6 +19,5 @@ ReactDOM.render(
       </Switch>
     </BrowserRouter>
   </React.StrictMode>,
-  document.getElementById("template")
+  document.getElementById('template')
 );
-

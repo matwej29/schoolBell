@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
-import { io } from "socket.io-client";
-import { Link } from "react-router-dom";
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { io } from 'socket.io-client';
+import { Link } from 'react-router-dom';
 // import ReactDOM from 'react-dom';
-const host = "http://localhost:8080";
+const host = 'http://localhost:8080';
 console.log(io(host)); // коннектится
 const useSocket = () => {
   const ref = useRef(null);
@@ -41,28 +41,25 @@ const onItemChange = (index, newValue, currentObject, setObject) => {
 const [lessons, setLessons] = useState([]);
 
 useEffect(() => {
-  const { socket, addListener } = useSocket();
-  setLessons(addListener("lessons"));
+  const { addListener } = useSocket();
+  setLessons(addListener('lessons'));
 
   // return
-}, [addListener, socket]);
+}, []);
 
-const getDay = (day) => {
-  return lessons.filter((lesson) => lesson.dayOfWeek === day);
-};
+const getDay = (day) => lessons.filter((lesson) => lesson.dayOfWeek === day);
 
 const setDay = (schedule) => {
   setLessons(
     lessons
-      .filter((lesson) => {
-        lesson.dayOfWeek !== schedule[0].dayOfWeek;
-      })
+      .filter((lesson) => lesson.dayOfWeek !== schedule[0].dayOfWeek)
       .push(schedule)
   );
 };
 
 const lessonsSave = () => {
-  socket.emit("write_lessons", lessons);
+  const { socket } = useSocket();
+  socket.emit('write_lessons', lessons);
 };
 // };
 
@@ -74,7 +71,7 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
     onChange({ timeStart, timeEnd: e.target.value });
   };
   return (
-    <React.Fragment>
+    <>
       <th scope="row">{id}</th>
       <td>
         <input
@@ -83,7 +80,7 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
           name="timeStart"
           value={timeStart}
           onChange={onTimeStartChange}
-        ></input>
+        />
       </td>
       <td>
         <input
@@ -92,14 +89,14 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
           name="timeEnd"
           value={timeEnd}
           onChange={onTimeEndChange}
-        ></input>
+        />
       </td>
-    </React.Fragment>
+    </>
   );
 };
 
 const LessonsDay = (dayOfWeek) => {
-  const [date, setDate] = useState(dayOfWeek.dayOfWeek);
+  const [date] = useState(dayOfWeek.dayOfWeek);
   const [schedule, setSchedule] = useState([]);
   useEffect(() => {
     const pageData = () => {
@@ -112,19 +109,19 @@ const LessonsDay = (dayOfWeek) => {
   }, [schedule]);
   const addItem = () => {
     const prePreviousItem = schedule[schedule.length - 2] ?? {
-      timeStart: "00:00",
-      timeEnd: "00:00",
+      timeStart: '00:00',
+      timeEnd: '00:00',
     };
     const previousItem = schedule[schedule.length - 1] ?? {
       id: 0,
-      timeStart: "08:00",
-      timeEnd: "08:40",
+      timeStart: '08:00',
+      timeEnd: '08:40',
     };
     setSchedule(
       schedule.concat({
         id: previousItem.id + 1,
         dayOfWeek: date,
-        timeStart: previousItem.timeStart,
+        timeStart: previousItem.timeStart || prePreviousItem,
         timeEnd: previousItem.timeEnd,
       })
     );
@@ -135,13 +132,13 @@ const LessonsDay = (dayOfWeek) => {
   };
 
   const WEEKDAYS = [
-    "Понедельник",
-    "Вторник",
-    "Среда",
-    "Четверг",
-    "Пятница",
-    "Суббота",
-    "Воскресенье",
+    'Понедельник',
+    'Вторник',
+    'Среда',
+    'Четверг',
+    'Пятница',
+    'Суббота',
+    'Воскресенье',
   ];
 
   console.log(schedule);
@@ -151,12 +148,17 @@ const LessonsDay = (dayOfWeek) => {
       <div className="card-body">
         <div className="row row-cols-auto">
           <button
+            type="button"
             className="btn btn-secondary me-1"
             onClick={() => lessonsSave(schedule, date)}
           >
             Сохранить
           </button>
-          <button className="btn btn-secondary" onClick={() => addItem()}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => addItem()}
+          >
             Добавить
           </button>
         </div>
@@ -183,9 +185,12 @@ const LessonsDay = (dayOfWeek) => {
                 />
                 <td>
                   <button
+                    type="button"
                     className="btn btn-danger bi bi-x-lg"
                     onClick={() => deleteItem(index)}
-                  ></button>
+                  >
+                    delete
+                  </button>
                   {/* <p>{item.id}</p> */}
                 </td>
               </tr>
@@ -197,9 +202,8 @@ const LessonsDay = (dayOfWeek) => {
   );
 };
 
-const Schedule = () => {
-  return (
-    <React.Fragment>
+const Schedule = () => (
+    <>
       <Link to="/settings">Settings without style</Link>
       <div className="container-fluid px-4">
         <div className="row row-cols-auto gx-6">
@@ -212,8 +216,7 @@ const Schedule = () => {
           <LessonsDay className="col" dayOfWeek={7} />
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
-};
 
 export default Schedule;
