@@ -1,7 +1,11 @@
 import React from "react";
 
-export default (
-  <React.Fragment>
-    <p>Hi!</p>
-  </React.Fragment>
-);
+const todo = () => {
+  return (
+    <React.Fragment>
+      <p>Hi!</p>
+    </React.Fragment>
+  );
+};
+
+export default todo;

@@ -1,16 +1,70 @@
-// import './Lesson.css';
-import React from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { io } from "socket.io-client";
 import { Link } from "react-router-dom";
 // import ReactDOM from 'react-dom';
-const socket = io("localhost:8080");
-const lessons = {
-  lessons: [],
-  get: (day) => {
-    this.lessons.filter((lesson) => lesson.id === day);
-  },
+const host = "http://localhost:8080";
+console.log(io(host)); // коннектится
+const useSocket = () => {
+  const ref = useRef(null);
+  useEffect(() => {
+    ref.current = io(host);
+    console.log(ref.current); // не коннектится
+    return () => {
+      ref.current.disconnect();
+    };
+  }, []);
+
+  const addListener = useCallback(
+    (event, handler) => {
+      if (!ref.current) return;
+      ref.current = ref.current.on(event, handler);
+    },
+    [ref.current]
+  );
+
+  return { socket: ref.current, addListener };
 };
-socket.on("lessons", (res) => lessons.lessons = res);
+
+const onItemChange = (index, newValue, currentObject, setObject) => {
+  const newObject = [
+    ...currentObject.slice(0, index),
+    {
+      ...currentObject[index],
+      ...newValue,
+    },
+    ...currentObject.slice(index + 1),
+  ];
+  setObject(newObject);
+};
+
+// const week = () => {
+const [lessons, setLessons] = useState([]);
+
+useEffect(() => {
+  const { socket, addListener } = useSocket();
+  setLessons(addListener("lessons"));
+
+  // return
+}, [addListener, socket]);
+
+const getDay = (day) => {
+  return lessons.filter((lesson) => lesson.dayOfWeek === day);
+};
+
+const setDay = (schedule) => {
+  setLessons(
+    lessons
+      .filter((lesson) => {
+        lesson.dayOfWeek !== schedule[0].dayOfWeek;
+      })
+      .push(schedule)
+  );
+};
+
+const lessonsSave = () => {
+  socket.emit("write_lessons", lessons);
+};
+// };
 
 const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
   const onTimeStartChange = (e) => {
@@ -44,40 +98,27 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
   );
 };
 
-const lessonsSave = (data, dayOfWeek) => {
-  socket.emit("write_lessons", lessons);
-};
-
-const getDay = (day) => {
-  return lessons.get(day);
-};
-
 const LessonsDay = (dayOfWeek) => {
-  const [date, setDate] = React.useState(dayOfWeek.dayOfWeek);
-  const [schedule, setSchedule] = React.useState([]);
-  React.useEffect(() => {
-    const pageData = async () => {
+  const [date, setDate] = useState(dayOfWeek.dayOfWeek);
+  const [schedule, setSchedule] = useState([]);
+  useEffect(() => {
+    const pageData = () => {
       setSchedule(getDay(date));
     };
     pageData();
   }, [date]);
-  const onItemChange = (index, newValue) => {
-    const newSchedule = [
-      ...schedule.slice(0, index),
-      {
-        ...schedule[index],
-        ...newValue,
-      },
-      ...schedule.slice(index + 1),
-    ];
-    setSchedule(newSchedule);
-  };
+  useEffect(() => {
+    setDay(schedule);
+  }, [schedule]);
   const addItem = () => {
-    const prePreviousItem = schedule[schedule.length - 2];
+    const prePreviousItem = schedule[schedule.length - 2] ?? {
+      timeStart: "00:00",
+      timeEnd: "00:00",
+    };
     const previousItem = schedule[schedule.length - 1] ?? {
       id: 0,
       timeStart: "08:00",
-      timeEnd: "08:00",
+      timeEnd: "08:40",
     };
     setSchedule(
       schedule.concat({
@@ -93,7 +134,7 @@ const LessonsDay = (dayOfWeek) => {
     setSchedule([...schedule.slice(0, index), ...schedule.slice(index + 1)]);
   };
 
-  const DAYS_OF_WEEK = [
+  const WEEKDAYS = [
     "Понедельник",
     "Вторник",
     "Среда",
@@ -106,7 +147,7 @@ const LessonsDay = (dayOfWeek) => {
   console.log(schedule);
   return (
     <div className="card card-outline card-primary">
-      <div className="card-header">{DAYS_OF_WEEK[date - 1]}</div>
+      <div className="card-header">{WEEKDAYS[date - 1]}</div>
       <div className="card-body">
         <div className="row row-cols-auto">
           <button
@@ -137,7 +178,7 @@ const LessonsDay = (dayOfWeek) => {
                   timeStart={item.timeStart}
                   timeEnd={item.timeEnd}
                   onChange={(newValue) => {
-                    onItemChange(index, newValue);
+                    onItemChange(index, newValue, schedule, setSchedule);
                   }}
                 />
                 <td>

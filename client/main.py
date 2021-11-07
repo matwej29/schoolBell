@@ -7,27 +7,29 @@ import playsound
 # import asyncio
 from aiohttp import web
 
-path_to_static="../front/build/"
+path_to_static="../front/dist/"
 
 sio = socketio.AsyncServer(cors_allowed_origins="*")
 app = web.Application()
 sio.attach(app)
+routes = web.RouteTableDef()
+
 
 global id, lessons
 
 lessons = []  # список со звонками за 1 день
 id = 0  # номер дня (варьируется с 0 до 7)
 
-
-def run_threaded(job_func):
-    job_thread = threading.Thread(target=job_func)
-    job_thread.start()
-
 # ------------------ socket-io
+@routes.get('/')
 async def index(request):
     """Serve the client-side application."""
     with open(path_to_static+'index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
+
+routes.static('/static', path_to_static)
+
+app.add_routes(routes)
 
 def getConfig():
     global ip, port
@@ -60,8 +62,10 @@ async def connect(sid, environ, auth):
     print("connected", sid)
     await sio.emit('lessons', lessons)
 
-app.router.add_static('/static', path=path_to_static)
-app.router.add_get('', index)
+@sio.event
+def disconnect(sid):
+    print("disconnected", sid)
+
 # -----------------------
 
 # ----------------------- bells
@@ -71,9 +75,9 @@ def get_lessons():
     row_lessons = open("./lessons.json", "r").read()  # получаем конфиг
     lessons = json.loads(row_lessons)
     print(lessons)
+get_lessons()
 
 # функция сверяет время с началом или концом урока и дает соответствующий звонок (звонки)
-
 def check():
     if 0 < id <= 6:  # проверка дня недели, нет смысла выполнять скрипт по воскресеньям
         h = str(time.strftime("%H"))  # получем часы [0-23]
@@ -88,9 +92,6 @@ def check():
                 playsound.playsound("./sounds/sfx2.mp3")
                 time.sleep(60)
 
-
-get_lessons()
-
 def run_continuously(interval=1):
     cease_continuous_run = threading.Event()
 
@@ -104,6 +105,11 @@ def run_continuously(interval=1):
     continuous_thread = ScheduleThread()
     continuous_thread.start()
     return cease_continuous_run
+
+
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
 
 # Start the background thread
 stop_run_continuously = run_continuously()
