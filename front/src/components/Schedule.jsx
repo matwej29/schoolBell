@@ -3,24 +3,19 @@ import { io } from 'socket.io-client';
 import { Link } from 'react-router-dom';
 // import ReactDOM from 'react-dom';
 const host = 'http://localhost:8080';
-console.log(io(host)); // коннектится
 const useSocket = () => {
   const ref = useRef(null);
   useEffect(() => {
     ref.current = io(host);
-    console.log(ref.current); // не коннектится
     return () => {
       ref.current.disconnect();
     };
   }, []);
 
-  const addListener = useCallback(
-    (event, handler) => {
-      if (!ref.current) return;
-      ref.current = ref.current.on(event, handler);
-    },
-    []
-  );
+  const addListener = useCallback((event, handler) => {
+    if (!ref.current) return;
+    ref.current = ref.current.on(event, handler);
+  }, []);
 
   return { socket: ref.current, addListener };
 };
@@ -37,31 +32,25 @@ const onItemChange = (index, newValue, currentObject, setObject) => {
   setObject(newObject);
 };
 
-// const week = () => {
-const [lessons, setLessons] = useState([]);
+const useLessons = () => {
+  const [lessons, setLessons] = useState([]);
+  const getDay = (day) => lessons.filter((lesson) => lesson.dayOfWeek === day);
 
-useEffect(() => {
-  const { addListener } = useSocket();
-  setLessons(addListener('lessons'));
+  const setDay = (schedule) => {
+    setLessons(
+      lessons
+        .filter((lesson) => lesson.dayOfWeek !== schedule[0].dayOfWeek)
+        .push(schedule)
+    );
+  };
 
-  // return
-}, []);
+  const saveLessons = () => {
+    // const { socket } = useSocket();
+    // socket.emit('write_lessons', lessons);
+  };
 
-const getDay = (day) => lessons.filter((lesson) => lesson.dayOfWeek === day);
-
-const setDay = (schedule) => {
-  setLessons(
-    lessons
-      .filter((lesson) => lesson.dayOfWeek !== schedule[0].dayOfWeek)
-      .push(schedule)
-  );
+  return { lessons, setLessons, getDay, setDay, saveLessons };
 };
-
-const lessonsSave = () => {
-  const { socket } = useSocket();
-  socket.emit('write_lessons', lessons);
-};
-// };
 
 const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
   const onTimeStartChange = (e) => {
@@ -98,15 +87,26 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
 const LessonsDay = (dayOfWeek) => {
   const [date] = useState(dayOfWeek.dayOfWeek);
   const [schedule, setSchedule] = useState([]);
+  const { setLessons, getDay, setDay, saveLessons } = useLessons();
+  const { addListener } = useSocket();
+  useEffect(() => {
+    let temp = [];
+    addListener('lessons', (lessons) => {
+      temp = lessons;
+    });
+    setLessons(temp);
+    console.log(temp);
+    // return
+  }, [addListener, setLessons]);
   useEffect(() => {
     const pageData = () => {
       setSchedule(getDay(date));
     };
     pageData();
-  }, [date]);
+  }, [date, getDay]);
   useEffect(() => {
     setDay(schedule);
-  }, [schedule]);
+  }, [schedule, setDay]);
   const addItem = () => {
     const prePreviousItem = schedule[schedule.length - 2] ?? {
       timeStart: '00:00',
@@ -141,7 +141,6 @@ const LessonsDay = (dayOfWeek) => {
     'Воскресенье',
   ];
 
-  console.log(schedule);
   return (
     <div className="card card-outline card-primary">
       <div className="card-header">{WEEKDAYS[date - 1]}</div>
@@ -150,7 +149,7 @@ const LessonsDay = (dayOfWeek) => {
           <button
             type="button"
             className="btn btn-secondary me-1"
-            onClick={() => lessonsSave(schedule, date)}
+            onClick={() => saveLessons(schedule, date)}
           >
             Сохранить
           </button>
