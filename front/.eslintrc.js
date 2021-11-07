@@ -11,6 +11,6 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react', 'prettier'],
+  plugins: ['react', 'prettier', 'react-hooks', 'import', 'jsx-a11y'],
   rules: { 'react/prop-types': 0 },
 };

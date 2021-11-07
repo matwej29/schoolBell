@@ -18,12 +18,6 @@
     "start": "parcel src/index.html --public-url /static",
     "build": "parcel build src/index.html --public-url /static --no-optimize"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
