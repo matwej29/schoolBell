@@ -1,24 +1,7 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { io } from 'socket.io-client';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 // import ReactDOM from 'react-dom';
 const host = 'http://localhost:8080';
-const useSocket = () => {
-  const ref = useRef(null);
-  useEffect(() => {
-    ref.current = io(host);
-    return () => {
-      ref.current.disconnect();
-    };
-  }, []);
-
-  const addListener = useCallback((event, handler) => {
-    if (!ref.current) return;
-    ref.current = ref.current.on(event, handler);
-  }, []);
-
-  return { socket: ref.current, addListener };
-};
 
 const onItemChange = (index, newValue, currentObject, setObject) => {
   const newObject = [
@@ -32,21 +15,32 @@ const onItemChange = (index, newValue, currentObject, setObject) => {
   setObject(newObject);
 };
 
+const getSchedule = async () => {
+  const response = await (
+    await fetch(`${host}/get_lessons`, { method: 'GET' })
+  ).json();
+  return response;
+};
+
 const useLessons = () => {
   const [lessons, setLessons] = useState([]);
-  const getDay = (day) => lessons.filter((lesson) => lesson.dayOfWeek === day);
+  useEffect(() => getSchedule().then((res) => setLessons(res)), []);
+  const getDay = (day) => lessons.filter((lesson) => lesson?.dayOfWeek === day);
 
   const setDay = (schedule) => {
-    setLessons(
-      lessons
-        .filter((lesson) => lesson.dayOfWeek !== schedule[0].dayOfWeek)
-        .push(schedule)
-    );
+    setLessons([
+      ...lessons.filter(
+        (lesson) => lesson.dayOfWeek !== schedule[0]?.dayOfWeek
+      ),
+      ...schedule,
+    ]);
   };
 
   const saveLessons = () => {
-    // const { socket } = useSocket();
-    // socket.emit('write_lessons', lessons);
+    fetch(`${host}/write_lessons`, {
+      method: 'POST',
+      body: JSON.stringify(lessons),
+    });
   };
 
   return { lessons, setLessons, getDay, setDay, saveLessons };
@@ -84,29 +78,16 @@ const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
   );
 };
 
-const LessonsDay = (dayOfWeek) => {
-  const [date] = useState(dayOfWeek.dayOfWeek);
+const LessonsDay = ({ dayOfWeek, preInitLessons }) => {
+  const [date] = useState(dayOfWeek);
+  const { lessons, setLessons, getDay } = preInitLessons;
   const [schedule, setSchedule] = useState([]);
-  const { setLessons, getDay, setDay, saveLessons } = useLessons();
-  const { addListener } = useSocket();
-  useEffect(() => {
-    let temp = [];
-    addListener('lessons', (lessons) => {
-      temp = lessons;
-    });
-    setLessons(temp);
-    console.log(temp);
-    // return
-  }, [addListener, setLessons]);
   useEffect(() => {
     const pageData = () => {
       setSchedule(getDay(date));
     };
     pageData();
-  }, [date, getDay]);
-  useEffect(() => {
-    setDay(schedule);
-  }, [schedule, setDay]);
+  }, [lessons, date]);
   const addItem = () => {
     const prePreviousItem = schedule[schedule.length - 2] ?? {
       timeStart: '00:00',
@@ -117,18 +98,19 @@ const LessonsDay = (dayOfWeek) => {
       timeStart: '08:00',
       timeEnd: '08:40',
     };
-    setSchedule(
-      schedule.concat({
-        id: previousItem.id + 1,
+    setLessons(
+      lessons.concat({
+        id: lessons[lessons.length - 1]?.id + 1 || 0,
         dayOfWeek: date,
-        timeStart: previousItem.timeStart || prePreviousItem,
+        timeStart: previousItem.timeStart,
         timeEnd: previousItem.timeEnd,
       })
     );
   };
 
-  const deleteItem = (index) => {
-    setSchedule([...schedule.slice(0, index), ...schedule.slice(index + 1)]);
+  const deleteItem = (id) => {
+    const index = lessons.findIndex((lesson) => lesson.id === id);
+    setLessons([...lessons.slice(0, index), ...lessons.slice(index + 1)]);
   };
 
   const WEEKDAYS = [
@@ -148,13 +130,6 @@ const LessonsDay = (dayOfWeek) => {
         <div className="row row-cols-auto">
           <button
             type="button"
-            className="btn btn-secondary me-1"
-            onClick={() => saveLessons(schedule, date)}
-          >
-            Сохранить
-          </button>
-          <button
-            type="button"
             className="btn btn-secondary"
             onClick={() => addItem()}
           >
@@ -172,23 +147,28 @@ const LessonsDay = (dayOfWeek) => {
             </tr>
           </thead>
           <tbody>
-            {schedule.map((item, index) => (
+            {getDay(dayOfWeek).map((item, index) => (
               <tr key={item.id}>
                 <Lesson
                   id={index + 1}
                   timeStart={item.timeStart}
                   timeEnd={item.timeEnd}
                   onChange={(newValue) => {
-                    onItemChange(index, newValue, schedule, setSchedule);
+                    onItemChange(
+                      lessons.findIndex((lesson) => lesson.id === item.id),
+                      newValue,
+                      lessons,
+                      setLessons
+                    );
                   }}
                 />
                 <td>
                   <button
                     type="button"
                     className="btn btn-danger bi bi-x-lg"
-                    onClick={() => deleteItem(index)}
+                    onClick={() => deleteItem(item.id)}
                   >
-                    delete
+                    {' '}
                   </button>
                   {/* <p>{item.id}</p> */}
                 </td>
@@ -201,21 +181,35 @@ const LessonsDay = (dayOfWeek) => {
   );
 };
 
-const Schedule = () => (
-  <>
-    <Link to="/settings">Settings without style</Link>
-    <div className="container-fluid px-4">
-      <div className="row row-cols-auto gx-6">
-        <LessonsDay className="col" dayOfWeek={1} />
-        <LessonsDay className="col" dayOfWeek={2} />
-        <LessonsDay className="col" dayOfWeek={3} />
-        <LessonsDay className="col" dayOfWeek={4} />
-        <LessonsDay className="col" dayOfWeek={5} />
-        <LessonsDay className="col" dayOfWeek={6} />
-        <LessonsDay className="col" dayOfWeek={7} />
+const Schedule = () => {
+  const preInitLessons = useLessons();
+
+  return (
+    <>
+      <Link to="/settings" className="btn btn-secondary me-1">
+        Settings
+      </Link>
+      <div className="container-fluid px-4">
+        <button
+          type="button"
+          className="btn btn-secondary me-1"
+          onClick={() => preInitLessons.saveLessons()}
+        >
+          Сохранить
+        </button>
+        {/* prettier-ignore */}
+        <div className="row row-cols-auto gx-6">
+          <LessonsDay className="col" dayOfWeek={1} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={2} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={3} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={4} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={5} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={6} preInitLessons={preInitLessons} />
+          <LessonsDay className="col" dayOfWeek={7} preInitLessons={preInitLessons} />
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 export default Schedule;
