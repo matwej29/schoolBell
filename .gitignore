@@ -5,3 +5,4 @@ setting.json
 /front/src/build
 /client/static
 /client/__pycache__
+/client/.idea

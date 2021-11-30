@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 // import ReactDOM from 'react-dom';
-const host = 'http://localhost:8080';
 
-const onItemChange = (index, newValue, currentObject, setObject) => {
+const onItemChange = (index, newValue, currentObject, setObjectFunction) => {
   const newObject = [
     ...currentObject.slice(0, index),
     {
@@ -12,12 +11,12 @@ const onItemChange = (index, newValue, currentObject, setObject) => {
     },
     ...currentObject.slice(index + 1),
   ];
-  setObject(newObject);
+  setObjectFunction(newObject);
 };
 
 const getSchedule = async () => {
   const response = await (
-    await fetch(`${host}/get_lessons`, { method: 'GET' })
+    await fetch('/get_lessons', { method: 'GET' })
   ).json();
   return response;
 };
@@ -27,23 +26,14 @@ const useLessons = () => {
   useEffect(() => getSchedule().then((res) => setLessons(res)), []);
   const getDay = (day) => lessons.filter((lesson) => lesson?.dayOfWeek === day);
 
-  const setDay = (schedule) => {
-    setLessons([
-      ...lessons.filter(
-        (lesson) => lesson.dayOfWeek !== schedule[0]?.dayOfWeek
-      ),
-      ...schedule,
-    ]);
-  };
-
   const saveLessons = () => {
-    fetch(`${host}/write_lessons`, {
+    fetch('/write_lessons', {
       method: 'POST',
       body: JSON.stringify(lessons),
     });
   };
 
-  return { lessons, setLessons, getDay, setDay, saveLessons };
+  return { lessons, setLessons, getDay, saveLessons };
 };
 
 const Lesson = ({ timeStart, timeEnd, onChange, id }) => {
@@ -87,12 +77,13 @@ const LessonsDay = ({ dayOfWeek, preInitLessons }) => {
       setSchedule(getDay(date));
     };
     pageData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessons, date]);
   const addItem = () => {
-    const prePreviousItem = schedule[schedule.length - 2] ?? {
-      timeStart: '00:00',
-      timeEnd: '00:00',
-    };
+    // const prePreviousItem = schedule[schedule.length - 2] ?? {
+    //   timeStart: '00:00',
+    //   timeEnd: '00:00',
+    // };
     const previousItem = schedule[schedule.length - 1] ?? {
       id: 0,
       timeStart: '08:00',
@@ -125,18 +116,17 @@ const LessonsDay = ({ dayOfWeek, preInitLessons }) => {
 
   return (
     <div className="card card-outline card-primary">
-      <div className="card-header">{WEEKDAYS[date - 1]}</div>
+      <div className="card-header row row-cols-auto">
+        <p>{WEEKDAYS[date - 1]}</p>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => addItem()}
+        >
+          Добавить
+        </button>
+      </div>
       <div className="card-body">
-        <div className="row row-cols-auto">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => addItem()}
-          >
-            Добавить
-          </button>
-        </div>
-
         <table className="table">
           <thead>
             <tr>
@@ -189,14 +179,14 @@ const Schedule = () => {
       <Link to="/settings" className="btn btn-secondary me-1">
         Settings
       </Link>
+      <button
+        type="button"
+        className="btn btn-secondary me-1"
+        onClick={() => preInitLessons.saveLessons()}
+      >
+        Сохранить
+      </button>
       <div className="container-fluid px-4">
-        <button
-          type="button"
-          className="btn btn-secondary me-1"
-          onClick={() => preInitLessons.saveLessons()}
-        >
-          Сохранить
-        </button>
         {/* prettier-ignore */}
         <div className="row row-cols-auto gx-6">
           <LessonsDay className="col" dayOfWeek={1} preInitLessons={preInitLessons} />

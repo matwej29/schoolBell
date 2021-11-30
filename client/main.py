@@ -1,3 +1,4 @@
+import os
 import json
 import schedule
 import threading
@@ -34,6 +35,7 @@ async def get_lessons(req):
     global lessons
     return web.json_response(lessons)
 
+
 @routes.post('/write_lessons')
 async def write_lessons(request: web.Request) -> web.Response:
     data = await request.json()
@@ -41,8 +43,29 @@ async def write_lessons(request: web.Request) -> web.Response:
     update_lessons(data)
     return web.Response()
 
+
+@routes.post('/write_file')
+async def store_mp3_handler(request: web.Request):
+    reader = await request.multipart()
+    field = await reader.next()
+    filename = field.filename
+    print(field)
+    # You cannot rely on Content-Length if transfer is chunked.
+    size = 0
+    with open(os.path.join('./sounds', filename+'.mp3'), 'wb') as f:
+        while True:
+            chunk = await field.read_chunk()  # 8192 bytes by default.
+            if not chunk:
+                break
+            size += len(chunk)
+            f.write(chunk)
+    print(filename, size)
+    return web.Response(text='{} sized of {} successfully stored'
+                             ''.format(filename, size))
+
 routes.static('/static', path_to_static)
 app.add_routes(routes)
+
 
 def update_lessons(new_lessons):
     global lessons
@@ -95,6 +118,7 @@ get_lessons()
 # функция сверяет время с началом или концом урока и дает соответствующий звонок (звонки)
 
 
+# TODO: optimize check function
 def check():
     global lessons, id
     id = int(time.strftime("%w"))
@@ -135,4 +159,4 @@ def run_threaded(job_func):
 # Start the background thread
 stop_run_continuously = run_continuously()
 schedule.every(1).seconds.do(check)
-run_threaded(web.run_app(app))
+run_threaded(web.run_app(app, port=4000))
