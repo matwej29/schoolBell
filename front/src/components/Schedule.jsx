@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-// import ReactDOM from 'react-dom';
 
 const onItemChange = (index, newValue, currentObject, setObjectFunction) => {
   const newObject = [
@@ -77,13 +76,9 @@ const LessonsDay = ({ dayOfWeek, preInitLessons }) => {
       setSchedule(getDay(date));
     };
     pageData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessons, date]);
   const addItem = () => {
-    // const prePreviousItem = schedule[schedule.length - 2] ?? {
-    //   timeStart: '00:00',
-    //   timeEnd: '00:00',
-    // };
     const previousItem = schedule[schedule.length - 1] ?? {
       id: 0,
       timeStart: '08:00',
@@ -117,10 +112,10 @@ const LessonsDay = ({ dayOfWeek, preInitLessons }) => {
   return (
     <div className="card card-outline card-primary">
       <div className="card-header row row-cols-auto">
-        <p>{WEEKDAYS[date - 1]}</p>
+        <p className="col">{WEEKDAYS[date - 1]}</p>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-secondary col"
           onClick={() => addItem()}
         >
           Добавить
@@ -175,20 +170,21 @@ const Schedule = () => {
   const preInitLessons = useLessons();
 
   return (
-    <>
-      <Link to="/settings" className="btn btn-secondary me-1">
-        Settings
-      </Link>
-      <button
-        type="button"
-        className="btn btn-secondary me-1"
-        onClick={() => preInitLessons.saveLessons()}
-      >
-        Сохранить
-      </button>
-      <div className="container-fluid px-4">
-        {/* prettier-ignore */}
-        <div className="row row-cols-auto gx-6">
+    <div className="container px-4 vstack gap-1 mt-2">
+      <div className="row d-flex justify-content-start">
+        <Link to="/settings" className="btn btn-outline-info me-1 col-md-2">
+          Settings
+        </Link>
+        <button
+          type="button"
+          className="btn btn-primary me-1 col-md-2  "
+          onClick={() => preInitLessons.saveLessons()}
+        >
+          Сохранить
+        </button>
+      </div>
+      {/* prettier-ignore */}
+      <div className="row row-cols-auto gx-6">
           <LessonsDay className="col" dayOfWeek={1} preInitLessons={preInitLessons} />
           <LessonsDay className="col" dayOfWeek={2} preInitLessons={preInitLessons} />
           <LessonsDay className="col" dayOfWeek={3} preInitLessons={preInitLessons} />
@@ -197,8 +193,7 @@ const Schedule = () => {
           <LessonsDay className="col" dayOfWeek={6} preInitLessons={preInitLessons} />
           <LessonsDay className="col" dayOfWeek={7} preInitLessons={preInitLessons} />
         </div>
-      </div>
-    </>
+    </div>
   );
 };
 

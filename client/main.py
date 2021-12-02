@@ -14,34 +14,58 @@ app = web.Application()
 sio.attach(app)
 routes = web.RouteTableDef()
 
+global day_id, lessons, settings, todays_lessons
 
-global id, lessons
-
-lessons = []  # список со звонками за 1 день
-id = 0  # номер дня (варьируется с 0 до 7)
-
-# ------------------ socket-io
+lessons = []
+todays_lessons = []
+day_id = 0
+setting = {}
 
 
-@routes.get('/')
-async def index(req):
+# ------------------ server
+
+@routes.get("/")
+async def index(request) -> web.Response:
     """Serve the client-side application."""
-    with open(path_to_static+'index.html') as f:
+    with open(path_to_static + 'index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 
 @routes.get('/get_lessons')
-async def get_lessons(req):
+async def get_lessons(request):
     global lessons
     return web.json_response(lessons)
 
 
 @routes.post('/write_lessons')
 async def write_lessons(request: web.Request) -> web.Response:
+    global lessons, todays_lessons, day_id
     data = await request.json()
-    print(data)
-    update_lessons(data)
+    lessons = data
+    todays_lessons = list(filter(lambda lesson: lesson['id'] == day_id, lessons))
+    open('./lessons.json', 'w').write(json.dumps(data))
     return web.Response()
+
+
+@routes.get('/get_settings')
+async def get_settings(request: web.Request) -> web.Response:
+    global settings
+    return web.Response(body=json.dumps(settings))
+
+
+@routes.post('/write_settings')
+async def write_settings(request: web.Request) -> web.Response:
+    global settings
+    settings = await request.json()
+    print(settings)
+    open('./settings.json', 'w').write(json.dumps(settings))
+    return web.Response()
+
+
+@routes.get('/fetch_file_list')
+async def fetch_file_list(request: web.Request) -> web.Response:
+    file_list = os.listdir('./sounds')
+    return web.Response(body=json.dumps(file_list))
 
 
 @routes.post('/write_file')
@@ -49,90 +73,75 @@ async def store_mp3_handler(request: web.Request):
     reader = await request.multipart()
     field = await reader.next()
     filename = field.filename
-    print(field)
-    # You cannot rely on Content-Length if transfer is chunked.
     size = 0
-    with open(os.path.join('./sounds', filename+'.mp3'), 'wb') as f:
+    with open(os.path.join('./sounds', filename + '.mp3'), 'wb') as f:
         while True:
-            chunk = await field.read_chunk()  # 8192 bytes by default.
+            chunk = await field.read_chunk()
             if not chunk:
                 break
             size += len(chunk)
             f.write(chunk)
-    print(filename, size)
     return web.Response(text='{} sized of {} successfully stored'
                              ''.format(filename, size))
+
 
 routes.static('/static', path_to_static)
 app.add_routes(routes)
 
 
-def update_lessons(new_lessons):
+@sio.event
+async def connect(sid, environ, auth):
     global lessons
-    lessons = new_lessons
-    open('./lessons.json', 'w').write(json.dumps(new_lessons))
+    print("connected", sid)
+    await sio.emit('lessons', lessons)
 
 
-# @sio.on('get_lessons')
-# async def lessons():
-#     await sio.emit('lessons', lessons)
-
-
-# @sio.on('write_lessons')
-# def write_lessons(data):
-#     global lessons
-#     lessons = json.loads(data)
-#     write_file(lessons)
-
-
-# @sio.event
-# def error(err):
-#     print(err)
-
-
-# @sio.event
-# async def connect(sid, environ, auth):
-#     global lessons
-#     print("connected", sid)
-#     await sio.emit('lessons', lessons)
-
-
-# @sio.event
-# def disconnect(sid):
-#     print("disconnected", sid)
+@sio.event
+def disconnect(sid):
+    print("disconnected", sid)
 
 # -----------------------
 
 # ----------------------- bells
 
 
-def get_lessons():
-    global lessons
-    row_lessons = open("./lessons.json", "r").read()  # получаем конфиг
-    lessons = json.loads(row_lessons)
-    # print(lessons)
+def read_lessons():
+    global lessons, todays_lessons
+    raw_lessons = open("./lessons.json", "r").read()  # получаем конфиг
+    lessons = json.loads(raw_lessons)
+    todays_lessons = list(filter(lambda lesson: lesson['id'] == day_id, lessons))
 
 
-get_lessons()
+def read_settings():
+    global settings
+    raw_settings = open('./settings.json', 'r').read()
+    settings = json.loads(raw_settings)
 
-# функция сверяет время с началом или концом урока и дает соответствующий звонок (звонки)
+
+def update_day_id():
+    global day_id
+    day_id = int(time.strftime("%w"))
+
+
+update_day_id()
+read_lessons()
+read_settings()
 
 
 # TODO: optimize check function
 def check():
-    global lessons, id
-    id = int(time.strftime("%w"))
-    if 0 < id <= 7:
+    global todays_lessons, day_id
+    if 0 < day_id <= 7:
         # текущее время
         h = str(time.strftime("%H"))
         m = str(time.strftime("%M"))
-        for t in lessons:
-            if t['timeStart'] == h + ":" + m and t['dayOfWeek'] == id:  # проверка на начало урока
+        for t in todays_lessons:
+            if t['timeStart'] == h + ":" + m and t['dayOfWeek'] == day_id:
                 playsound.playsound(
-                    "./sounds/sfx1.mp3")
+                    f'./sounds/{settings["lessonStartSound"]}')
                 time.sleep(60)
             elif t['timeEnd'] == h + ":" + m:  # проверка на перемену
-                playsound.playsound("./sounds/sfx2.mp3")
+                playsound.playsound(f'./sounds/{settings["lessonEndSound"]}')
                 time.sleep(60)
 
 
@@ -159,4 +168,5 @@ def run_threaded(job_func):
 # Start the background thread
 stop_run_continuously = run_continuously()
 schedule.every(1).seconds.do(check)
+schedule.every(1).hours.do(update_day_id)
 run_threaded(web.run_app(app, port=4000))
