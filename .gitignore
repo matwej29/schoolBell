@@ -2,3 +2,7 @@
 node_modules
 setting.json
 .cache
+/front/src/build
+/client/static
+/client/__pycache__
+/client/.idea
