@@ -3,26 +3,23 @@ import json
 import schedule
 import threading
 import time
-import socketio  # python-socketio
 import playsound
 from aiohttp import web
 
 path_to_static = "../front/dist/"
 
-sio = socketio.AsyncServer(cors_allowed_origins="*")
 app = web.Application()
-sio.attach(app)
 routes = web.RouteTableDef()
 
-global day_id, lessons, settings, todays_lessons
+global day_id, lessons, settings, todays_lessons, on_off
 
 lessons = []
 todays_lessons = []
 day_id = 0
-setting = {}
-
+on_off = True
 
 # ------------------ server
+
 
 @routes.get("/")
 async def index(request) -> web.Response:
@@ -42,7 +39,8 @@ async def write_lessons(request: web.Request) -> web.Response:
     global lessons, todays_lessons, day_id
     data = await request.json()
     lessons = data
-    todays_lessons = list(filter(lambda lesson: lesson['id'] == day_id, lessons))
+    todays_lessons = list(
+        filter(lambda lesson: lesson['dayOfWeek'] == day_id, lessons))
     open('./lessons.json', 'w').write(json.dumps(data))
     return web.Response()
 
@@ -56,9 +54,23 @@ async def get_settings(request: web.Request) -> web.Response:
 @routes.post('/write_settings')
 async def write_settings(request: web.Request) -> web.Response:
     global settings
-    settings = await request.json()
-    print(settings)
+    new_settings = await request.json()
+    settings['lessonStartSound'] = new_settings['lessonStartSound'] if new_settings['lessonStartSound'] != '' else settings['lessonStartSound']
+    settings['lessonEndSound'] = new_settings['lessonEndSound'] if new_settings['lessonEndSound'] != '' else settings['lessonEndSound']
     open('./settings.json', 'w').write(json.dumps(settings))
+    return web.Response()
+
+
+@routes.get('/getOnOff')
+async def get_on_off(request: web.Request) -> web.Response:
+    global on_off
+    return web.Response(text=json.dumps(on_off))
+
+
+@routes.post('/writeOnOff')
+async def write_on_off(request: web.Request) -> web.Response:
+    global on_off
+    on_off = await request.text() == 'true'
     return web.Response()
 
 
@@ -88,18 +100,6 @@ async def store_mp3_handler(request: web.Request):
 routes.static('/static', path_to_static)
 app.add_routes(routes)
 
-
-@sio.event
-async def connect(sid, environ, auth):
-    global lessons
-    print("connected", sid)
-    await sio.emit('lessons', lessons)
-
-
-@sio.event
-def disconnect(sid):
-    print("disconnected", sid)
-
 # -----------------------
 
 # ----------------------- bells
@@ -109,7 +109,8 @@ def read_lessons():
     global lessons, todays_lessons
     raw_lessons = open("./lessons.json", "r").read()  # получаем конфиг
     lessons = json.loads(raw_lessons)
-    todays_lessons = list(filter(lambda lesson: lesson['id'] == day_id, lessons))
+    todays_lessons = list(
+        filter(lambda lesson: lesson['id'] == day_id, lessons))
 
 
 def read_settings():
@@ -128,10 +129,9 @@ read_lessons()
 read_settings()
 
 
-# TODO: optimize check function
 def check():
-    global todays_lessons, day_id
-    if 0 < day_id <= 7:
+    global todays_lessons, day_id, on_off
+    if 0 <= day_id <= 7 and on_off:
         # текущее время
         h = str(time.strftime("%H"))
         m = str(time.strftime("%M"))
@@ -140,7 +140,7 @@ def check():
                 playsound.playsound(
                     f'./sounds/{settings["lessonStartSound"]}')
                 time.sleep(60)
-            elif t['timeEnd'] == h + ":" + m:  # проверка на перемену
+            elif t['timeEnd'] == h + ":" + m and t['dayOfWeek'] == day_id:
                 playsound.playsound(f'./sounds/{settings["lessonEndSound"]}')
                 time.sleep(60)
 

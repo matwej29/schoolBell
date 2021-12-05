@@ -1,6 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const DisplayState = () => {
+  const [onOff, setOnOff] = useState('Загрузка...');
+  useEffect(() => {
+    (async () => {
+      const res = await (await fetch('/getOnOff')).text();
+      setOnOff(res === 'true');
+    })();
+  }, []);
+
+  const changeStateOnOff = () => {
+    const newOnOff = !onOff;
+    setOnOff(newOnOff);
+    fetch('/writeOnOff', { body: newOnOff, method: 'POST' });
+  };
+
+  return (
+    <div className="row d-flex justify-content-start">
+      <button
+        onClick={() => changeStateOnOff()}
+        type="button"
+        className="btn btn-outline-primary col-md-2"
+      >
+        {onOff ? 'Включен' : 'Выключен'}
+      </button>
+    </div>
+  );
+};
+
 const onItemChange = (index, newValue, currentObject, setObjectFunction) => {
   const newObject = [
     ...currentObject.slice(0, index),
@@ -183,6 +211,7 @@ const Schedule = () => {
           Сохранить
         </button>
       </div>
+      <DisplayState />
       {/* prettier-ignore */}
       <div className="row row-cols-auto gx-6">
           <LessonsDay className="col" dayOfWeek={1} preInitLessons={preInitLessons} />

@@ -27,37 +27,23 @@ const FileChooser = () => {
 
   return (
     <div className="card">
-      <form onSubmit={submitForm} className="card-body input-group" id='form1'>
+      <form onSubmit={submitForm} className="card-body input-group">
         <select
           className="form-select col"
           onChange={(e) => setSoundForStart(e.target.value)}
-          defaultValue={bells[0]}
+          defaultValue={selectedSounds[0]}
         >
           {bells.map((item, index) => (
-            <option
-              selected={
-                selectedSounds[0] === item || index + 1 === bells.length
-              }
-              key={index}
-            >
-              {item}
-            </option>
+            <option key={index}>{item}</option>
           ))}
         </select>
         <select
           className="form-select col"
           onChange={(e) => setSoundForEnd(e.target.value)}
-          defaultValue={bells[0]}
+          defaultValue={selectedSounds[1]}
         >
           {bells.map((item, index) => (
-            <option
-              selected={
-                selectedSounds[1] === item || index + 1 === bells.length
-              }
-              key={index}
-            >
-              {item}
-            </option>
+            <option key={index}>{item}</option>
           ))}
         </select>
 
